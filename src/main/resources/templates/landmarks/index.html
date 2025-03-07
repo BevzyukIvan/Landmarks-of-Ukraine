@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Визначні пам'ятки України</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <h1 class="mb-4">Визначні пам'ятки України</h1>
+
+    <a href="/landmarks/new" class="btn btn-success mb-3">Додати нову пам'ятку</a>
+
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center" th:each="landmark : ${landmarks}">
+            <a th:href="@{/landmarks/{id}(id=${landmark.id})}" th:text="${landmark.name}" class="text-primary fw-bold"></a>
+
+            <form th:action="@{/landmarks/{id}/delete(id=${landmark.id})}" method="post" class="ms-3">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">Видалити</button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>
