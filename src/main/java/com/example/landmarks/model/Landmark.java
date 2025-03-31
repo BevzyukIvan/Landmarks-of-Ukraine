@@ -2,8 +2,12 @@ package com.example.landmarks.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@NoArgsConstructor
 @Table(name = "landmarks")
 public class Landmark {
     @Id
@@ -13,48 +17,19 @@ public class Landmark {
     @NotEmpty(message = "Назва не може бути порожньою")
     private String name;
 
-    private String description;
     private String location;
+    private String description;
     private String imageUrl;
 
-    public Long getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public Landmark(String name, String location, String description, String imageUrl, User user) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
         this.location = location;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
+        this.description = description;
         this.imageUrl = imageUrl;
+        this.user = user;
     }
 }
-

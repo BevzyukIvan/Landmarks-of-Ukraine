@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,11 +16,18 @@
 
     <div th:if="${landmark.imageUrl}" class="mb-4">
         <p><strong>Зображення:</strong></p>
-        <img th:src="${landmark.imageUrl}" alt="Зображення пам'ятки" class="img-fluid rounded">
+        <img th:src="${landmark.imageUrl}" alt="Зображення пам'ятки" class="img-fluid rounded" style="max-width: 500px; height: auto;">
     </div>
 
-    <a th:href="@{/landmarks/{id}/edit(id=${landmark.id})}" class="btn btn-warning">Редагувати</a>
-    <a href="/landmarks" class="btn btn-secondary">Назад до списку</a>
+    <div class="d-flex gap-2 mt-3">
+        <div sec:authorize="isAuthenticated()">
+            <div th:if="${#authentication.name == landmark.user.username or #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a th:href="@{/landmarks/{id}/edit(id=${landmark.id})}" class="btn btn-warning">Редагувати</a>
+            </div>
+        </div>
+
+        <a href="/landmarks" class="btn btn-secondary">Назад до списку</a>
+    </div>
 </div>
 
 </body>

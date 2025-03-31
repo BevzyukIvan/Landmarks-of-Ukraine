@@ -22,7 +22,7 @@ public class LandmarkController {
     @GetMapping()
     public String index(Model model) {
         model.addAttribute("landmarks", service.findAll());
-        return "landmarks/index";
+        return "index";
     }
 
     @GetMapping("/{id}")
@@ -36,7 +36,7 @@ public class LandmarkController {
         return "landmarks/new";
     }
 
-    @PostMapping()
+    @PostMapping("/new")
     public String create(@ModelAttribute("landmark") @Valid Landmark landmark, BindingResult result) {
         if (result.hasErrors()) return "landmarks/new";
 
@@ -54,7 +54,9 @@ public class LandmarkController {
     public String update(@PathVariable("id") Long id, @ModelAttribute("landmark") @Valid Landmark landmark, BindingResult result) {
         if (result.hasErrors()) return "landmarks/edit";
 
-        landmark.setId(id);
+        Landmark existingLandmark = service.findById(id);
+        landmark.setUser(existingLandmark.getUser());
+
         service.save(landmark);
         return "redirect:/landmarks";
     }
