@@ -11,8 +11,7 @@
 <div class="container py-5">
     <h1 class="mb-4">Додати нову пам'ятку</h1>
 
-    <form action="/landmarks" method="post" th:object="${landmark}" class="needs-validation" novalidate>
-
+    <form th:action="@{/landmarks/new}" method="post" th:object="${landmark}" class="needs-validation" novalidate>
         <div class="mb-3">
             <label class="form-label">Назва:</label>
             <input type="text" th:field="*{name}" class="form-control" required>

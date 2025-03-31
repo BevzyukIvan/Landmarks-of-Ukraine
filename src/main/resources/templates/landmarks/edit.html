@@ -13,6 +13,7 @@
 
   <form th:action="@{/landmarks/{id}(id=${landmark.id})}" method="post" th:object="${landmark}" class="needs-validation">
     <input type="hidden" name="_method" value="put"/>
+    <input type="hidden" th:field="*{user.id}"/>
 
     <div class="mb-3">
       <label class="form-label">Назва:</label>
@@ -38,6 +39,7 @@
     <button type="submit" class="btn btn-primary">Оновити</button>
     <a href="/landmarks" class="btn btn-secondary">Скасувати</a>
   </form>
+
 </div>
 
 </body>
