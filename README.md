@@ -9,7 +9,7 @@
 ---
 
 ## ⚡ Технології
-- **Backend:** Spring Boot, Spring Data JPA, Hibernate
+- **Backend:** Spring Boot, Spring Data JPA, Hibernate, Spring Security
 - **Frontend:** Thymeleaf, Bootstrap 5
 - **База даних:** MySQL
 - **Інструменти:** Maven, IntelliJ IDEA
