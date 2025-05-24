@@ -30,18 +30,28 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/landmarks/new", "/landmarks/{id}/edit").authenticated()
+                        .requestMatchers(
+                                "/landmarks/new",
+                                "/landmarks/*/edit",
+                                "/landmarks/*/delete",
+                                "/landmarks/*/comments",
+                                "/landmarks/*/comments/*/delete",
+
+                                "/users/*/edit",
+                                "/users/*/follow",
+                                "/users/*/unfollow"
+                        ).authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(login -> login
                         .loginPage("/login")
-                        .defaultSuccessUrl("/landmarks", true)
+                        .defaultSuccessUrl("/", true)
                         .failureUrl("/login?error")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/perform_logout")
-                        .logoutSuccessUrl("/landmarks")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
                         .permitAll()
                 );
 
@@ -57,6 +67,19 @@ public class SecurityConfig {
             if (userRepository.findByUsername(adminUsername).isEmpty()) {
                 User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), Role.ROLE_ADMIN);
                 userRepository.save(admin);
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner createTestUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return args -> {
+            for (int i = 1; i <= 50; i++) {
+                String username = "user" + i;
+                if (userRepository.findByUsername(username).isEmpty()) {
+                    User user = new User(username, passwordEncoder.encode("password123"), Role.ROLE_USER);
+                    userRepository.save(user);
+                }
             }
         };
     }

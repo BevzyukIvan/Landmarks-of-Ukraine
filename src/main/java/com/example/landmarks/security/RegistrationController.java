@@ -33,14 +33,18 @@ public class RegistrationController {
     public String processRegistration(@Valid @ModelAttribute("registrationForm") RegistrationForm form,
                                       BindingResult bindingResult) {
         if (!form.isPasswordConfirmed()) {
-            bindingResult.rejectValue("confirmPassword", "error.registrationForm", "Паролі не співпадають!");
+            bindingResult.rejectValue("confirmPassword", "error.confirmPassword", "Паролі не співпадають!");
+        }
+
+        if (userService.usernameExists(form.getUsername())) {
+            bindingResult.rejectValue("username", "error.username", "Користувач з таким ім’ям вже існує!");
         }
 
         if (bindingResult.hasErrors()) {
             return "security/registration";
         }
 
-        userService.registerUser(form.toUser(passwordEncoder));
+        userService.register(form.toUser(passwordEncoder));
         return "redirect:/login";
     }
 }
