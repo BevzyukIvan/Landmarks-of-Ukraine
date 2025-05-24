@@ -23,6 +23,6 @@ public class LoginController {
 
     @PostMapping
     public String processLogin() {
-        return "redirect:/landmarks"; // Spring Security обробляє вхід сам
+        return "redirect:/"; // Spring Security обробляє вхід сам
     }
 }

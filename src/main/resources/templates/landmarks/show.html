@@ -5,29 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Деталі пам'ятки</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+            padding: 24px 18px;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar h4 {
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        .topbar {
+            position: fixed;
+            right: 24px;
+            top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 60px 30px 30px;
+            width: 100%;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container py-5">
-    <h1 th:text="${landmark.name}" class="mb-4"></h1>
+<!-- Sidebar -->
+<div class="sidebar">
+    <h4>Landmarks</h4>
+    <a href="/">🏠 Головна</a>
+    <a sec:authorize="isAuthenticated()" href="/feed">👥 Підписки</a>
+    <a href="/search">🔍 Пошук</a>
+    <a sec:authorize="isAuthenticated()" th:href="@{'/users/' + ${#authentication.name}}">👤 Профіль</a>
+</div>
 
-    <p><strong>Опис:</strong> <span th:text="${landmark.description}"></span></p>
-    <p><strong>Локація:</strong> <span th:text="${landmark.location}"></span></p>
+<!-- Topbar -->
+<div class="topbar">
+    <div th:if="${#authorization.expression('isAuthenticated()')}">
+        <img th:src="${#authentication.principal.avatar != null ? #authentication.principal.avatar : '/images/default-avatar.png'}" alt="avatar" class="avatar">
+        <a th:href="@{'/users/' + ${#authentication.name}}" class="username" th:text="${#authentication.name}"></a>
+        <a href="/logout" class="btn btn-sm btn-outline-danger">Вийти</a>
+    </div>
+    <div th:unless="${#authorization.expression('isAuthenticated()')}">
+        <a href="/login" class="btn btn-sm btn-outline-primary">Увійти</a>
+        <a href="/register" class="btn btn-sm btn-primary">Реєстрація</a>
+    </div>
+</div>
 
-    <div th:if="${landmark.imageUrl}" class="mb-4">
-        <p><strong>Зображення:</strong></p>
-        <img th:src="${landmark.imageUrl}" alt="Зображення пам'ятки" class="img-fluid rounded" style="max-width: 500px; height: auto;">
+<!-- Main content -->
+<div class="main-content">
+
+    <h2 th:text="${landmark.name}" class="mb-3"></h2>
+
+    <div th:if="${landmark.imagePath}" class="mb-4">
+        <img th:src="${landmark.imagePath}" alt="Фото пам'ятки" class="img-fluid rounded" style="max-height: 400px;">
     </div>
 
-    <div class="d-flex gap-2 mt-3">
-        <div sec:authorize="isAuthenticated()">
-            <div th:if="${#authentication.name == landmark.user.username or #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                <a th:href="@{/landmarks/{id}/edit(id=${landmark.id})}" class="btn btn-warning">Редагувати</a>
+    <p th:if="${landmark.description}" class="mb-2"><strong>Опис:</strong> <span th:text="${landmark.description}"></span></p>
+    <p th:if="${landmark.location}" class="mb-2"><strong>Локація:</strong> <span th:text="${landmark.location}"></span></p>
+
+    <div sec:authorize="isAuthenticated()">
+        <div th:if="${#authentication.name == landmark.user.username or #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+            <a th:href="@{'/landmarks/' + ${landmark.id} + '/edit'}" class="btn btn-sm btn-outline-warning">Редагувати</a>
+        </div>
+    </div>
+
+    <!-- Коментарі -->
+    <hr class="my-4">
+    <h5 class="mb-3">Коментарі</h5>
+
+    <!-- Форма коментаря -->
+    <div sec:authorize="isAuthenticated()">
+        <form th:action="@{'/landmarks/' + ${landmark.id} + '/comments'}" method="post" th:object="${commentForm}" class="mb-4">
+            <div class="mb-3">
+                <textarea th:field="*{content}" class="form-control" rows="3" placeholder="Залиште коментар..."></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Надіслати</button>
+        </form>
+    </div>
+
+    <!-- Список коментарів -->
+    <div th:each="c : ${comments}" class="card mb-3">
+        <div class="card-body">
+            <h6 class="text-primary" th:text="${c.user.username}">Користувач</h6>
+            <p class="mb-1" th:text="${c.content}">Коментар</p>
+            <small class="text-muted" th:text="${#temporals.format(c.createdAt, 'dd.MM.yyyy HH:mm')}"></small>
+
+            <div th:if="${#authentication.name == c.user.username or #authorization.expression('hasRole(''ROLE_ADMIN'')')}" class="mt-2">
+                <form th:action="@{'/landmarks/' + ${landmark.id} + '/comments/' + ${c.id} + '/delete'}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Видалити</button>
+                </form>
             </div>
         </div>
-
-        <a href="/landmarks" class="btn btn-secondary">Назад до списку</a>
     </div>
+
 </div>
 
 </body>

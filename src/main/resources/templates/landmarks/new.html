@@ -9,9 +9,24 @@
 <body class="bg-light">
 
 <div class="container py-5">
-    <h1 class="mb-4">Додати нову пам'ятку</h1>
+    <a href="/" class="btn btn-sm btn-outline-secondary mb-4">&larr; На головну</a>
+    <h2 class="mb-4 text-center">Додати нову пам'ятку</h2>
 
-    <form th:action="@{/landmarks/new}" method="post" th:object="${landmark}" class="needs-validation" novalidate>
+    <form method="post"
+          enctype="multipart/form-data"
+          th:action="@{/landmarks/new}"
+          th:object="${landmark}"
+          class="mx-auto needs-validation"
+          style="max-width: 500px;">
+
+        <!-- Помилки валідації -->
+        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+            <p th:each="err : ${#fields.errors('*')}" th:text="${err}"></p>
+        </div>
+
+        <!-- Помилка при не вибраному файлі -->
+        <div th:if="${uploadError}" class="alert alert-danger text-center" th:text="${uploadError}"></div>
+
         <div class="mb-3">
             <label class="form-label">Назва:</label>
             <input type="text" th:field="*{name}" class="form-control" required>
@@ -29,30 +44,13 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Зображення (URL):</label>
-            <input type="text" th:field="*{imageUrl}" class="form-control">
+            <label class="form-label">Оберіть зображення</label>
+            <input type="file" name="file" id="file" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-primary">Зберегти</button>
-        <a href="/landmarks" class="btn btn-secondary">Скасувати</a>
+        <button type="submit" class="btn btn-primary w-100">Зберегти</button>
     </form>
 </div>
-
-<script>
-    (function () {
-        'use strict';
-        var forms = document.querySelectorAll('.needs-validation');
-        Array.prototype.slice.call(forms).forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    })();
-</script>
 
 </body>
 </html>
